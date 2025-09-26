@@ -43,7 +43,7 @@ public class MemoryManager {
         
     }
 
-    public boolean setBlockUsed(int blockNumber, boolean used) {
+     public boolean setBlockUsed(int blockNumber, boolean used) {
         if (blockNumber < 0 || blockNumber >= NUM_BLOCKS)
             return false;
 
@@ -51,10 +51,20 @@ public class MemoryManager {
         int bitPosition = blockNumber % 8;
         int offset = BITMAP_OFFSET + byteIndex;
 
-              //! Expliquez pourquoi on utilise un décallage de bit ?
+        if (isBlockUsed(blockNumber)){
+            byte x = filesystemMemory[offset] | (1 << bitPosition);
+            filesystemMemory[offset] = x;
+        }else{
+            filesystemMemory[offset] &= ~(1 << bitPosition);
+        }
+
+
+        // INDICE: Utilisez les opérations | (OR) et & (AND) avec des masques
+
 
         return true;
     }
+
 
     public int isBlockUsed(int blockNumber) {
         if (blockNumber < 0 || blockNumber >= NUM_BLOCKS)
@@ -68,11 +78,25 @@ public class MemoryManager {
     }
 
     public int allocateBlock() {
-        // Trouvez un block libre
-                // Dans ce cas, marqué le comme non libre
-                // Et retourner le numéro du block
+        // TODO: Complétez cette méthode étape par étape
+        // ÉTAPE 1: Boucle de la page 129 à la fin (les pages de données)
+        // ÉTAPE 2: Pour chaque page, vérifier si elle est libre
+        // ÉTAPE 3: Si libre, la marquer comme occupée
+        // ÉTAPE 4: Retourner son numéro
+
+        // AIDE: Commencer par cette structure
+        
+        for (int i = 129; i < NUM_BLOCKS; i++) {
+            if (isBlockUsed(i) == 0) {  // Bloc libre trouvé !
+                setBlockUsed(i, true); 
+                System.out.println("Bloc occupé: " + i);
+                return i;
+            }
+        }
+        
         return -1; // Pas de bloc libre
     }
+
 
     public byte[] getFilesystemMemory() {
         return filesystemMemory;
